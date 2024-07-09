@@ -96,11 +96,11 @@ public class AuthController {
         UserDTO userDTO = new UserDTO(registeredUser);
         OrganisationDTO orgDTO = new OrganisationDTO(savedOrg);
 
-        String token = jwtTokenProvider.generateToken(UserPrincipal.create(registeredUser));
-        logger.info("Generated token: {}", token);
+        String accessToken = jwtTokenProvider.generateToken(UserPrincipal.create(registeredUser));
+        logger.info("Generated token: {}", accessToken);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse("success", "Registration successful", new AuthResponse(token, userDTO, orgDTO)));
+                .body(new ApiResponse("success", "Registration successful", new AuthResponse(accessToken, userDTO, orgDTO)));
         }
         catch(Exception e){
             logger.error("Error creating default organization for user: {}", registeredUser.getEmail(), e);
@@ -147,7 +147,7 @@ public class AuthController {
                         .body(new ApiResponse("error", "User not found", 500));
             }
 
-            String token = jwtTokenProvider.generateToken(userPrincipal);
+            String accessToken = jwtTokenProvider.generateToken(userPrincipal);
 
             logger.info("Generated token for user: {}", user.getEmail());
             UserDTO userDTO = new UserDTO(user);
@@ -159,7 +159,7 @@ public class AuthController {
             orgDTO = new OrganisationDTO(organisation);
         }
 
-            return ResponseEntity.ok(new ApiResponse("success", "Login successful", new AuthResponse(token, userDTO,orgDTO)));
+            return ResponseEntity.ok(new ApiResponse("success", "Login successful", new AuthResponse(accessToken, userDTO,orgDTO)));
         } catch (AuthenticationException e) {
             logger.error("Authentication failed for user: {}", loginRequest.getEmail(), e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

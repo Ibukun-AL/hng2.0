@@ -5,29 +5,29 @@ import lombok.Data;
 
 @Data
 public class AuthResponse {
-    private String token;
+    private String accessToken;
     private UserDTO user;
     private OrganisationDTO organisation;
 
-    public AuthResponse(String token, UserDTO user, OrganisationDTO organisation) {
-        this.token = token;
+    public AuthResponse(String accessToken, UserDTO user, OrganisationDTO organisation) {
+        this.accessToken = accessToken;
         this.user = user;
         this.organisation = organisation;
     }
 
      // Constructor for login response
-     public AuthResponse(String token, UserDTO user) {
-        this.token = token;
+     public AuthResponse(String accessToken, UserDTO user) {
+        this.accessToken = accessToken;
         this.user = user;
     }
 
     // Getters and setters
-    public String getToken() {
-        return token;
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
   

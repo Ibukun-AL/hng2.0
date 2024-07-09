@@ -80,7 +80,7 @@ public class AuthControllerTest {
             .content(jsonRequest))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.status").value("success"))
-            .andExpect(jsonPath("$.data.token", notNullValue()))
+            .andExpect(jsonPath("$.data.accessToken", notNullValue()))
             .andExpect(jsonPath("$.data.user.userId", notNullValue()))
             .andExpect(jsonPath("$.data.user.firstName").value("John"))
             .andExpect(jsonPath("$.data.user.lastName").value("Doe"))
