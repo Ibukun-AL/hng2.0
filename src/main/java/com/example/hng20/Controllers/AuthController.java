@@ -100,7 +100,7 @@ public class AuthController {
         logger.info("Generated token: {}", accessToken);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse("success", "Registration successful", new AuthResponse(accessToken, userDTO, null)));
+                .body(new ApiResponse("success", "Registration successful", new AuthResponse(accessToken, userDTO,null)));
         }
         catch(Exception e){
             logger.error("Error creating default organization for user: {}", registeredUser.getEmail(), e);

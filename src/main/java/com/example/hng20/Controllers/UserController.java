@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.hng20.Models.ApiResponse;
 import com.example.hng20.Models.User;
+import com.example.hng20.Models.UserDTO;
 import com.example.hng20.Services.UserService;
 
 @RestController
@@ -18,7 +19,10 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getUser(@PathVariable String id, @AuthenticationPrincipal User currentUser) {
         return userService.findById(id)
-                .map(user -> ResponseEntity.ok(new ApiResponse("success", "User found", user)))
+        .map(user -> {
+            UserDTO userDTO = new UserDTO(user);
+            return ResponseEntity.ok(new ApiResponse("success", "User found", userDTO));
+        })
                 .orElse(ResponseEntity.notFound().build());
     }
 }
