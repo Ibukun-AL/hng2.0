@@ -64,48 +64,29 @@ public class AuthController {
 
         
 
-        try{
+       
+    try {
         Organisation defaultOrg = new Organisation();
         defaultOrg.setName(user.getFirstName() + "'s Organisation");
         defaultOrg.getUsers().add(registeredUser);
-        
-        logger.info("Organisation before save: {}", defaultOrg);
-
-         
 
         organisationService.createOrganisation(defaultOrg);
         logger.info("Default organization created for user: {}", registeredUser.getEmail());
-        logger.info("Organisation after save: {}", defaultOrg);
 
-        
-
-        // Ensure the organisation set is initialized
-        // if (registeredUser.getOrganisations() == null) {
-        // registeredUser.setOrganisations(new HashSet<>());
-        //     }
-        // Ensure the organisation is correctly linked to the user
         registeredUser.getOrganisations().add(defaultOrg);
         userService.saveUser(registeredUser); // Save the updated user with the organisation
         logger.info("Updated user with organisation: {}", registeredUser);
 
-        // Fetch organisations to ensure they are loaded
-        // registeredUser = userService.findById(registeredUser.getUserId()).orElseThrow();
-
-        // Reload the organisation to ensure all fields are populated
-        Organisation savedOrg = organisationService.findById(defaultOrg.getOrgId()).orElseThrow();
-        UserDTO userDTO = new UserDTO(registeredUser);
-        OrganisationDTO orgDTO = new OrganisationDTO(savedOrg);
-
         String accessToken = jwtTokenProvider.generateToken(UserPrincipal.create(registeredUser));
         logger.info("Generated token: {}", accessToken);
 
+        UserDTO userDTO = new UserDTO(registeredUser);
+        AuthResponse authResponse = new AuthResponse(accessToken, userDTO);
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse("success", "Registration successful", new AuthResponse(accessToken, userDTO)));
-        }
-        catch(Exception e){
-            logger.error("Error creating default organization for user: {}", registeredUser.getEmail(), e);
-        // Optionally, you might want to delete the user if org creation fails
-        // userService.deleteUser(registeredUser);
+                .body(new ApiResponse("success", "Registration successful", authResponse));
+    } catch (Exception e) {
+        logger.error("Error creating default organization for user: {}", registeredUser.getEmail(), e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ApiResponse("error", "User registered but failed to create organization", 500));
     }
@@ -124,46 +105,41 @@ public class AuthController {
         logger.warn("Empty password provided for user: " + loginRequest.getEmail());
         return ResponseEntity.badRequest().body(new ApiResponse("error", "Password cannot be empty", 400));
     }
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            Object principal = authentication.getPrincipal();
-            logger.info("Principal class: {}", principal.getClass().getName());
+    try {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        Object principal = authentication.getPrincipal();
+        logger.info("Principal class: {}", principal.getClass().getName());
 
-            if (!(principal instanceof UserPrincipal)) {
-                logger.error("Principal is not an instance of UserPrincipal");
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(new ApiResponse("error", "Unexpected authentication principal", 500));
-            }
-
-            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-            User user = userPrincipal.getUser(); // Assuming UserPrincipal has a getUser() method
-
-            if (user == null) {
-                logger.error("User object is null in UserPrincipal");
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(new ApiResponse("error", "User not found", 500));
-            }
-
-            String accessToken = jwtTokenProvider.generateToken(userPrincipal);
-
-            logger.info("Generated token for user: {}", user.getEmail());
-            UserDTO userDTO = new UserDTO(user);
-
-             // Fetch and include organisation in response
-        // OrganisationDTO orgDTO = null;
-        // if (!user.getOrganisations().isEmpty()) {
-        //     Organisation organisation = user.getOrganisations().iterator().next();
-        //     orgDTO = new OrganisationDTO(organisation);
-        // }
-
-            return ResponseEntity.ok(new ApiResponse("success", "Login successful", new AuthResponse(accessToken, userDTO)));
-        } catch (AuthenticationException e) {
-            logger.error("Authentication failed for user: {}", loginRequest.getEmail(), e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ApiResponse("Bad request", "Authentication failed", 401));
+        if (!(principal instanceof UserPrincipal)) {
+            logger.error("Principal is not an instance of UserPrincipal");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("error", "Unexpected authentication principal", 500));
         }
+
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        User user = userPrincipal.getUser(); // Assuming UserPrincipal has a getUser() method
+
+        if (user == null) {
+            logger.error("User object is null in UserPrincipal");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("error", "User not found", 500));
+        }
+
+        String accessToken = jwtTokenProvider.generateToken(userPrincipal);
+
+        logger.info("Generated token for user: {}", user.getEmail());
+        UserDTO userDTO = new UserDTO(user);
+
+        // Create a response with the access token and user data only
+        AuthResponse authResponse = new AuthResponse(accessToken, userDTO);
+        return ResponseEntity.ok(new ApiResponse("success", "Login successful", authResponse));
+    } catch (AuthenticationException e) {
+        logger.error("Authentication failed for user: {}", loginRequest.getEmail(), e);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiResponse("Bad request", "Authentication failed", 401));
+    }
     }
 }
