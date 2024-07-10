@@ -47,15 +47,32 @@ public class OrganisationController {
         orgDTOs = organisations.stream()
                 .map(OrganisationDTO::new)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(new ApiResponse("success", "Organisations retrieved successfully", orgDTOs));
+        return ResponseEntity.ok(new ApiResponse("success", "Organisations retrieved successfully",  new DataWrapper(orgDTOs)));
     }
+
+    // DataWrapper class to wrap the organisations list
+class DataWrapper {
+    private List<OrganisationDTO> organisations;
+
+    public DataWrapper(List<OrganisationDTO> organisations) {
+        this.organisations = organisations;
+    }
+
+    public List<OrganisationDTO> getOrganisations() {
+        return organisations;
+    }
+
+    public void setOrganisations(List<OrganisationDTO> organisations) {
+        this.organisations = organisations;
+    }
+}
 
     @GetMapping("/{orgId}")
     public ResponseEntity<?> getOrganisation(@PathVariable String orgId, @AuthenticationPrincipal User currentUser) {
         return organisationService.findById(orgId)
         .map(org -> {
             OrganisationDTO orgDTO = new OrganisationDTO(org);
-            return ResponseEntity.ok(new ApiResponse("success", "Organisation found", orgDTO));
+            return ResponseEntity.ok(new ApiResponse("success", "Organisation found", new DataWrapper(List.of(orgDTO))));
         })
         .orElse(ResponseEntity.notFound().build());
     }
