@@ -80,16 +80,16 @@ public class AuthController {
         
 
         // Ensure the organisation set is initialized
-        if (registeredUser.getOrganisations() == null) {
-        registeredUser.setOrganisations(new HashSet<>());
-            }
+        // if (registeredUser.getOrganisations() == null) {
+        // registeredUser.setOrganisations(new HashSet<>());
+        //     }
         // Ensure the organisation is correctly linked to the user
         registeredUser.getOrganisations().add(defaultOrg);
         userService.saveUser(registeredUser); // Save the updated user with the organisation
         logger.info("Updated user with organisation: {}", registeredUser);
 
         // Fetch organisations to ensure they are loaded
-        registeredUser = userService.findById(registeredUser.getUserId()).orElseThrow();
+        // registeredUser = userService.findById(registeredUser.getUserId()).orElseThrow();
 
         // Reload the organisation to ensure all fields are populated
         Organisation savedOrg = organisationService.findById(defaultOrg.getOrgId()).orElseThrow();
@@ -153,11 +153,11 @@ public class AuthController {
             UserDTO userDTO = new UserDTO(user);
 
              // Fetch and include organisation in response
-        OrganisationDTO orgDTO = null;
-        if (!user.getOrganisations().isEmpty()) {
-            Organisation organisation = user.getOrganisations().iterator().next();
-            orgDTO = new OrganisationDTO(organisation);
-        }
+        // OrganisationDTO orgDTO = null;
+        // if (!user.getOrganisations().isEmpty()) {
+        //     Organisation organisation = user.getOrganisations().iterator().next();
+        //     orgDTO = new OrganisationDTO(organisation);
+        // }
 
             return ResponseEntity.ok(new ApiResponse("success", "Login successful", new AuthResponse(accessToken, userDTO)));
         } catch (AuthenticationException e) {
