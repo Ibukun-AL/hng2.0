@@ -100,7 +100,7 @@ public class AuthController {
         logger.info("Generated token: {}", accessToken);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse("success", "Registration successful", new AuthResponse(accessToken, userDTO, orgDTO)));
+                .body(new ApiResponse("success", "Registration successful", new AuthResponse(accessToken, userDTO, null)));
         }
         catch(Exception e){
             logger.error("Error creating default organization for user: {}", registeredUser.getEmail(), e);
@@ -159,7 +159,7 @@ public class AuthController {
             orgDTO = new OrganisationDTO(organisation);
         }
 
-            return ResponseEntity.ok(new ApiResponse("success", "Login successful", new AuthResponse(accessToken, userDTO,orgDTO)));
+            return ResponseEntity.ok(new ApiResponse("success", "Login successful", new AuthResponse(accessToken, userDTO,null)));
         } catch (AuthenticationException e) {
             logger.error("Authentication failed for user: {}", loginRequest.getEmail(), e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
