@@ -56,7 +56,7 @@ public class AuthController {
         if (userService.existsByEmail(user.getEmail())) {
             logger.warn("Email already exists: " + user.getEmail());
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(new ApiResponse("error", "Email already exists", 422));
+                    .body(new ApiResponse("Bad Request", "Registration unsuccessful", 400));
         }
 
         User registeredUser = userService.registerUser(user);
